@@ -1,0 +1,90 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+class CifradorVigenere {
+  public String cifrarTexto(String texto, String llaveriaCifrar) {
+    String res = "";
+    String llave = llaveriaCifrar;
+    int indiceClave = 0;
+
+    try {
+      File archivoLlave = new File(llaveriaCifrar);
+      Scanner scanner = new Scanner(archivoLlave);
+
+      if (scanner.hasNextLine()) {
+        llave = scanner.nextLine();
+      }
+
+      scanner.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+
+    for (int pos = 0; pos < texto.length(); pos++) {
+      char letraTexto = texto.charAt(pos);
+
+      if (Character.isWhitespace(letraTexto)) {
+        res = res + letraTexto; // Agregar espacio en blanco sin cifrar
+        continue; // Saltar al siguiente carácter
+      }
+
+      char letraClave = llave.charAt(indiceClave % llave.length());
+      indiceClave++;
+
+      char cifrado = ' '; // Inicializar el carácter cifrado con un espacio en blanco
+
+      if (Character.isLetter(letraTexto)) { // Si el carácter es una letra
+        if (Character.isLowerCase(letraTexto)) {
+          letraClave = Character.toLowerCase(letraClave);
+          int valor = (((letraTexto - 'a') + (letraClave - 'a')) % 26) + 'a';
+          cifrado = (char) valor;
+        } else {
+          int valor = (((letraTexto - 'A') + (letraClave - 'A')) % 26) + 'A';
+          cifrado = (char) valor;
+        }
+      } else if (Character.isDigit(letraTexto)) { // Si el carácter es un dígito
+        int valor = (((letraTexto - '0') + (letraClave - 'A')) % 10) + '0';
+        cifrado = (char) valor;
+      } else { // Si el carácter es un signo de puntuación
+        if (letraTexto == '\\') {
+            res = res + ' '; // Agregar un espacio en blanco en lugar del '\'
+        } else {
+            int offset = letraClave - 'A';
+            int valor = ((letraTexto + offset - 33) % 15) + 33; // 47 - 33 + 1 = 15
+            cifrado = (char) valor;
+        }
+
+      }
+
+      res = res + cifrado;
+    }
+    return res;
+  }
+
+
+ 
+  public String leerArchivo(String nombreArchivo) {
+    String textoLeido;
+    StringBuilder contenido = new StringBuilder();
+    try {
+      BufferedReader br = new BufferedReader(new FileReader(nombreArchivo));
+      String linea;
+      while ((linea = br.readLine()) != null) {
+        contenido.append(linea).append("\n");
+      }
+      br.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+ textoLeido = contenido.toString();
+
+    return textoLeido;
+  }
+
+  
+
+}
